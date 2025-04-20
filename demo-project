@@ -1,1 +1,48 @@
-we are working in progress and under maintanance
+pipeline {
+    agent any
+    environment {
+        name = 'gourab'
+        location = 'konnagar'
+    }
+    parameters{
+        string(name: 'person', defaultValue: 'lodhtest')
+        booleanParam(name: 'check', defaultValue: 'correct')
+        password(name: 'password', defaultValue: 'test')
+        choice(name: 'select', choices: ['synny','mia','yaji','maya'])
+    }
+
+    stages {
+        stage('Test') {
+            steps {
+                echo 'Project is Testing'
+            }
+        }
+        
+                stage('Prod') {
+            steps {
+                sh 'echo "Hi friend ${name}"'
+            }
+        }
+        
+           stage('Deploy') {
+            steps {
+                sh 'echo "This for ${person}"'
+                sh 'echo "This for ${check}"'
+                sh 'echo "This for ${password}"'
+                sh 'echo "This for ${select}"'
+            }
+        }
+        
+}   
+    post {
+        always {
+            echo 'I will always say Hello again!'
+        }
+        failure {
+            echo 'I have seen lot of failure!'
+        }
+        success {
+            echo 'Have learn from lot of failure and get success!'
+        }
+    }
+}
