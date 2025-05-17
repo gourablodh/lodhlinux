@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# File: generate_wazuh_alerts.sh
+# Usage: ./generate_wazuh_alerts.sh /path/to/threat/logs
+
+LOGTEST="/var/ossec/bin/wazuh-logtest"
+DIR="${1:-/var/log/threat-init/*.csv}"   # default folder if none provided
+
+if [ ! -x "$LOGTEST" ]; then
+  echo "ERROR: wazuh-logtest not found or not executable at $LOGTEST" >&2
+  exit 1
+fi
+
+if [ ! -d "$DIR" ]; then
+  echo "ERROR: Directory $DIR does not exist" >&2
+  exit 1
+fi
+
+echo "Feeding threat logs in $DIR to wazuh-logtest..."
+echo
+
+# Loop over CSV and JSON files
+shopt -s nullglob
+for file in "$DIR"/*.csv "$DIR"/*.json; do
+  echo "=== Processing $file ==="
+  # read line by line
+  while IFS= read -r line; do
+    # Skip blank lines
+    [[ -z "$line" ]] && continue
+
+    # feed to wazuh-logtest
+    echo "$line" | $LOGTEST
+  done < "$file"
+  echo
+done
+
+echo "Done. Check /var/ossec/logs/alerts/alerts.log for the generated alerts."
